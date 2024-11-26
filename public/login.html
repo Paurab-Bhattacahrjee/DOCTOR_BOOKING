@@ -1,25 +1,61 @@
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Medizco Center</title>
+    <title>Login</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <div class="form-container">
-        <div class="form-box">
+        <form id="loginForm">
             <h2>Login</h2>
-            <form id="login-form">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-                <button type="submit">Login</button>
-            </form>
-            <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
-        </div>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">Login</button>
+            <p>Don't have an account? <a href="signup.html">Sign up</a></p>
+        </form>
+        <div id="error-message" style="color: red;"></div>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('http://localhost:5000/api/users/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (response.ok) {
+    const data = await response.json();
+    console.log("Login response data:", data); // Log full response to check token presence
+    if (data.token) {
+        localStorage.setItem('token', data.token);
+        console.log("Token stored:", localStorage.getItem('token'));
+        setTimeout(() => {
+            window.location.href = 'appointment.html';
+        }, 100);
+    } else {
+        console.log("Token not found in response");
+    }
+}
+            } catch (error) {
+                document.getElementById('error-message').textContent = 'An error occurred. Please try again later.';
+            }
+        });
+    </script>
 </body>
 </html>
