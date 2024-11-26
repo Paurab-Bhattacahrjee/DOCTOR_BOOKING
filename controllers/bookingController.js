@@ -1,5 +1,6 @@
 const Booking = require('../models/Bookings');
 const Doctor = require('../models/Doctor');
+const User = require('../models/User'); // Import the User model
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
@@ -14,11 +15,19 @@ const transporter = nodemailer.createTransport({
 
 // Book an appointment
 exports.bookAppointment = async (req, res) => {
-    const { patientName, age, gender, city, branch, doctorId, date, email } = req.body;
+    const { patientName, age, gender, city, branch, doctorId, date } = req.body;
 
     try {
-        const doctor = await Doctor.findById(doctorId);
+        // Get user email from the User model using userId from req.user
+        console.log(req.user.id);
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            console.log('User not found');
+            return res.status(400).json({ message: 'User not found' });
+        }
+        const email = user.email; // Extract email from the User document
 
+        const doctor = await Doctor.findById(doctorId);
         if (!doctor) {
             console.log('Doctor not found');
             return res.status(400).json({ message: 'Doctor not found' });
@@ -41,6 +50,7 @@ exports.bookAppointment = async (req, res) => {
             doctor: doctor._id,
             date,
             email,
+            userId: req.user.userId // Reference to the user
         });
 
         // Save booking
