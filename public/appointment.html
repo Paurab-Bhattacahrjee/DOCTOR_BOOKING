@@ -31,6 +31,123 @@
                 </select>
                 <label for="date">Date:</label>
                 <input type="date" id="date" name="date" required>
+                 <!-- <label for="email">Email</label>
+                <input type="text" id="email" name="email" required>  -->
+                  <button type="submit">Book Appointment</button>
+            </form>
+            <div id="error-message" style="color: red;"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('city').addEventListener('change', fetchDoctors);
+        document.getElementById('branch').addEventListener('change', fetchDoctors);
+        const token = localStorage.getItem('token');
+
+        async function fetchDoctors() {
+            const city = document.getElementById('city').value;
+            const branch = document.getElementById('branch').value;
+
+            if (city && branch) {
+                try {
+                    const response = await fetch(`http://localhost:5000/api/doctors?city=${city}&branch=${branch}`);
+                    const doctors = await response.json();
+
+                    const doctorSelect = document.getElementById('doctor');
+                    doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+                    doctors.forEach(doctor => {
+                        const option = document.createElement('option');
+                        option.value = doctor._id;
+                        option.textContent = doctor.name;
+                        doctorSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Error fetching doctors:', error);
+                }
+            }
+        }
+
+        document.getElementById('appointment-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    
+    const patientName = document.getElementById('name').value;
+    const age = document.getElementById('age').value;
+    const gender = document.getElementById('gender').value;
+    const city = document.getElementById('city').value;
+    const branch = document.getElementById('branch').value;
+    const doctorId = document.getElementById('doctor').value;
+    const date = document.getElementById('date').value;
+
+    const formData = {
+        name: patientName,
+        age: age,
+        gender: gender,
+        city: city,
+        branch: branch,
+        doctorId: doctorId,
+        date: date
+    };
+
+    try {
+        const response = await fetch('http://localhost:5000/api/bookings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            alert('Appointment booked successfully!');
+            window.location.href = 'some-other-page.html';
+        } else {
+            document.getElementById('error-message').textContent = result.message;
+        }
+    } catch (error) {
+        console.error('Error occurred:', error);
+    }
+});
+
+    </script>
+</body>
+</html>
+ 
+
+ <!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment - Medizco Center</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-box">
+            <h2>Book Appointment</h2>
+            <form id="appointment-form">
+                <label for="name">Patient's Name:</label>
+                <input type="text" id="name" name="name" required>
+                <label for="age">Age:</label>
+                <input type="number" id="age" name="age" required>
+                <label for="gender">Gender:</label>
+                <select id="gender" name="gender" required>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select>
+                <label for="city">City:</label>
+                <input type="text" id="city" name="city" required>
+                <label for="branch">Required Branch:</label>
+                <input type="text" id="branch" name="branch" required>
+                <label for="doctor">Doctor:</label>
+                <select id="doctor" name="doctor" required>
+                    <option value="">Select Doctor</option>
+                </select>
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date" required>
                 <label for="email">Email</label>
                 <input type="text" id="email" name="email" required>
                 <button type="submit">Book Appointment</button>
@@ -102,4 +219,4 @@
         });
     </script>
 </body>
-</html>
+</html> -->
